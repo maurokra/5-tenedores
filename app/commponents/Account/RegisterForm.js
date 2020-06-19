@@ -2,43 +2,48 @@ import React, {useState} from "react";
 import { StyleSheet, View } from "react-native";
 import { Input, Icon, Button, colors } from "react-native-elements"
 import { validateEmail } from "../../utils/Validation";
+import { withNavigation } from "react-navigation";
 import * as firebase from "firebase";
+import Loading from "../Loading";
 
-
-export default function RegisterForm(props) {
+ function RegisterForm(props) {
     
-    const { toastRef } = props;
+    const { toastRef, navigation } = props;
     const [hidePassword, setHidePassword] = useState(true);
     const [hideRepeatPassword, sethideRepeatPassword] = useState(true);
+    const [isVisibleLoading, setIsVisibleLoading] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [repeatpassword, setRepeatPassword] = useState("");
 
     const register = async () => {
+        setIsVisibleLoading(true);
+
         if(!email || !password || !repeatpassword){
-            toastRef.current.show('todos los campos son obligatorios',1000)
-            console.log('-------------------------------------------------')
-            console.log(toastRef)
+            toastRef.current.show("Todos los campos son obligatorios");
+            
         } else {
             if(!validateEmail(email)) {
-                toastRef.current.show("el mail no es correcto")
-            console.log("el email No es correcto")
-            } else {
+                toastRef.current.show("El mail no es correcto")}
+             else {
                 if(password !== repeatpassword) {
-                    console.log ("las contraseñas no son iguales")
-                } else{
+                    toastRef.current.show("Las contraseñas no son iguales")}
+                 else {
                     await firebase
                     .auth()
                     .createUserWithEmailAndPassword(email, password)
                     .then(() => {
+                        navigation.navigate("MyAccount");
                         console.log('usuario creado correctamente!')
                     })
                     .catch(() => {
+                        toastRef.current.show("Error al crear la cuenta. Intentelo mas tarde");
                         console.log ('Error al crear la cuenta. Intentelo mas tarde')
                     });
                 }
             }
         }
+        setIsVisibleLoading(false);
     };
 
     return(
@@ -87,15 +92,18 @@ export default function RegisterForm(props) {
                 }   
                 />
                 <Button
-                    title="Unirse"
+                    title="Unirse..."
                     contaninerStyle={styles.btnContainerRegister}
                     buttonStyle={styles.btnRegister}
                     onPress={register}
-                    />
+                />
+                <Loading text="Creando cuenta" isVisible={isVisibleLoading} />
         </View>
     );
 
 }
+
+export default withNavigation (RegisterForm);
 
 const styles = StyleSheet.create({
     formContainer: {
@@ -106,19 +114,16 @@ const styles = StyleSheet.create({
     },
     inputForm: {
         width:"100%",
-        marginTop: "center"
+        marginTop: 20
     },
     iconRight: {
-        color: "#c1d1c1"
-
+        color: "#c1c1c1"
     },
     btnContainerRegister: {
         marginTop : 20,
         width:"95%"
-        
     },
     btnRegister: {
-    backgroundColor: "#00a680"
-}
-
-})
+        backgroundColor: "#00a680"
+    }
+});

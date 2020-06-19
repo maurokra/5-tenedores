@@ -19,7 +19,7 @@ export default function Register() {
          <View style={styles.viewForm}>
             <RegisterForm toastRef={toastRef} />
          </View> 
-         <Toast ref={toastRef} position="center" opacity={0.5}/>
+         <Toast ref={toastRef} position="top" opacity={0.5} positionValue={300}/>
          </KeyboardAwareScrollView>
     );
 }
